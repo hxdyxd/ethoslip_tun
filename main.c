@@ -51,7 +51,7 @@ int if_api_check(void *buf, unsigned int len);
 
 int main(int argc, char *argv[])
 {
-    int rate = 115200
+    int rate = 115200;
     if(argc <= 1) {
         APP_DEBUG("Usage: %s /dev/ttyS0 [115200]\n\n", argv[0]);
         return 0;
