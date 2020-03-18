@@ -1,0 +1,29 @@
+#!/bin/sh
+# Start the network...
+
+case "$1" in
+  start)
+        ethoslip_tun /dev/ttyS1 &
+        echo -e "Starting the ethoslip_tun:\n"
+        sleep 3
+        ifconfig tap0 10.0.0.2
+        route add default gw 10.0.0.1
+        echo nameserver 8.8.8.8 > /etc/resolv.conf
+        
+        [ $? = 0 ] && echo "OK" || echo "FAIL"
+        ;;
+  stop)
+        printf "Stopping network: "
+        killall ethoslip_tun
+        [ $? = 0 ] && echo "OK" || echo "FAIL"
+        ;;
+  restart|reload)
+        "$0" stop
+        "$0" start
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?

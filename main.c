@@ -51,9 +51,13 @@ int if_api_check(void *buf, unsigned int len);
 
 int main(int argc, char *argv[])
 {
-    if(argc < 3) {
-        APP_DEBUG("Usage: %s /dev/ttyUSB0 115200\n\n", argv[0]);
+    int rate = 115200
+    if(argc <= 1) {
+        APP_DEBUG("Usage: %s /dev/ttyS0 [115200]\n\n", argv[0]);
         return 0;
+    }
+    if(argc >= 3) {
+        rate = atoi(argv[2]);
     }
 
     signal(SIGINT, signal_proc);
@@ -70,28 +74,16 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    APP_DEBUG("Open UART device %s %d\n", argv[1], atoi(argv[2]) );
-    int err = uart2_init(argv[1], atoi(argv[2]));
+    APP_DEBUG("Open UART device %s %d\n", argv[1], rate);
+    int err = uart2_init(argv[1], rate);
     if(err < 0) {
         APP_ERROR("UART init failed\n\n");
         return 0;
     }
 
-/*  uint8_t buf[256];
-    for(int i=0;i<256;i++) {
-        buf[i] = i;
+    if(slip_out_task_start(&tun_fd) < 0) {
+        return 0;
     }
-    send_packet(buf, 256);
-
-    while(1) {
-        send_packet(buf, 256);
-        usleep(100000);
-    }
-
-    return 0;*/
-
-
-    slip_out_task_start(&tun_fd);
 
     while(slip_out_task_run_flag) {
         int total_len = read(tun_fd, tun_out_buffer, BUF_SIZE);
